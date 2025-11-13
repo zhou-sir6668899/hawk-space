@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>初始化数据</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>初始化GitHub数据</h1>
+    <button onclick="initData()">初始化数据</button>
+    <div id="status"></div>
+
+    <script>
+        // 修复Base64编码问题
+        function safeBtoa(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        // 简化的GitHub管理器
+        class DataInitializer {
+            constructor() {
+                this.token = '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'; // 替换为你的新Token
+                this.repo = 'zhou-str6668899/web-user-data';
+                this.baseURL = 'https://api.github.com/repos/';
+            }
+
+            async updateFile(filePath, content) {
+                // 将内容转换为JSON字符串，然后安全编码
+                const jsonString = JSON.stringify(content, null, 2);
+                const base64Content = safeBtoa(jsonString);
+
+                const response = await fetch(`${this.baseURL}${this.repo}/contents/${filePath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${this.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Initialize ${filePath}`,
+                        content: base64Content
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errorData.message}`);
+                }
+
+                return await response.json();
+            }
+
+            async initData() {
+                const status = document.getElementById('status');
+
+                try {
+                    status.innerHTML = '<div class="status">开始初始化...</div>';
+
+                    // 1. 创建用户数据（使用英文用户名避免编码问题）
+                    await this.updateFile('user/users.json', {
+                        users: [{
+                            id: "1",
+                            email: "hawk@qq.com",
+                            password: "123456",
+                            username: "admin", // 改为英文
+                            registerDate: new Date().toISOString(),
+                            lastLogin: null,
+                            loginCount: 0,
+                            status: "active",
+                            role: "admin",
+                            avatar: "",
+                            verified: true
+                        }]
+                    });
+                    status.innerHTML += '<div class="status success">✅ 用户数据创建成功</div>';
+
+                    // 2. 创建会话数据
+                    await this.updateFile('sessions/active-sessions.json', {
+                        sessions: []
+                    });
+                    status.innerHTML += '<div class="status success">✅ 会话数据创建成功</div>';
+
+                    // 3. 创建配置数据
+                    await this.updateFile('config/repository.config.json', {
+                        repository: {
+                            name: "web-user-data",
+                            owner: "zhou-str6668899",
+                            branch: "main"
+                        },
+                        security: {
+                            adminEmails: ["hawk@qq.com"],
+                            maxLoginAttempts: 5
+                        }
+                    });
+                    status.innerHTML += '<div class="status success">✅ 配置数据创建成功</div>';
+
+                    status.innerHTML += '<div class="status success">🎉 所有数据初始化完成！</div>';
+                    status.innerHTML += '<div class="status success">现在可以测试登录：hawk@qq.com / 123456</div>';
+
+                } catch (error) {
+                    status.innerHTML += `<div class="status error">❌ 初始化失败: ${error.message}</div>`;
+                    console.error('详细错误:', error);
+                }
+            }
+        }
+
+        const initializer = new DataInitializer();
+
+        function initData() {
+            initializer.initData();
+        }
+
+        // 测试编码函数
+        function testEncoding() {
+            try {
+                const testObj = { test: "中文测试" };
+                const encoded = safeBtoa(JSON.stringify(testObj));
+                const decoded = JSON.parse(atob(encoded));
+                console.log('✅ 编码测试通过:', decoded);
+            } catch (error) {
+                console.error('❌ 编码测试失败:', error);
+            }
+        }
+
+        // 页面加载时测试编码
+        document.addEventListener('DOMContentLoaded', testEncoding);
+    </script>
+</body>
+</html>
