@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公共聊天室 - 二手集市</title>
+    <link rel="stylesheet" href="css/chat.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-comments"></i>
+                <span>公共聊天室</span>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="toggleUsersPanel()">
+                    <i class="fas fa-users"></i>
+                    <span>在线用户</span>
+                </button>
+                <button class="nav-btn" onclick="clearChat()">
+                    <i class="fas fa-trash"></i>
+                    <span>清空聊天</span>
+                </button>
+                <a href="home.html" class="nav-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>返回首页</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主聊天区域 -->
+    <div class="chat-container">
+        <!-- 在线用户面板 -->
+        <div class="users-panel" id="usersPanel">
+            <div class="panel-header">
+                <h3>在线用户</h3>
+                <span class="online-count" id="onlineCount">0</span>
+                <button class="panel-close" onclick="toggleUsersPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="users-list" id="usersList">
+                <!-- 在线用户列表 -->
+            </div>
+            <div class="panel-footer">
+                <div class="user-status">
+                    <div class="status-indicator online"></div>
+                    <span>在线</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 聊天内容区域 -->
+        <div class="chat-main">
+            <!-- 聊天头部 -->
+            <div class="chat-header">
+                <div class="chat-info">
+                    <h2>公共聊天室</h2>
+                    <p>与大家交流闲置物品信息</p>
+                </div>
+                <div class="chat-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span id="activeUsers">0</span> 人在线
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-comment"></i>
+                        <span id="totalMessages">0</span> 条消息
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <div class="welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>欢迎来到公共聊天室</h3>
+                    <p>在这里你可以：</p>
+                    <ul>
+                        <li>💬 与大家交流闲置物品信息</li>
+                        <li>🤝 寻找心仪的商品</li>
+                        <li>📢 发布求购信息</li>
+                        <li>🎯 讨论交易经验</li>
+                    </ul>
+                </div>
+                <!-- 消息将通过JS动态添加 -->
+            </div>
+
+            <!-- 消息输入区域 -->
+            <div class="message-input-container">
+                <div class="input-tools">
+                    <button class="tool-btn" onclick="toggleEmojiPicker()">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button class="tool-btn" onclick="showQuickReplies()">
+                        <i class="fas fa-bolt"></i>
+                    </button>
+                    <button class="tool-btn" onclick="attachImage()">
+                        <i class="fas fa-image"></i>
+                    </button>
+                </div>
+
+                <div class="message-input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="输入消息... (按Enter发送，Shift+Enter换行)"
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+
+                <!-- 表情选择器 -->
+                <div class="emoji-picker" id="emojiPicker">
+                    <div class="emoji-category">
+                        <span>常用表情</span>
+                        <div class="emoji-grid">
+                            <span class="emoji" onclick="insertEmoji('😊')">😊</span>
+                            <span class="emoji" onclick="insertEmoji('😂')">😂</span>
+                            <span class="emoji" onclick="insertEmoji('❤️')">❤️</span>
+                            <span class="emoji" onclick="insertEmoji('👍')">👍</span>
+                            <span class="emoji" onclick="insertEmoji('🎉')">🎉</span>
+                            <span class="emoji" onclick="insertEmoji('🙏')">🙏</span>
+                            <span class="emoji" onclick="insertEmoji('🤔')">🤔</span>
+                            <span class="emoji" onclick="insertEmoji('😍')">😍</span>
+                            <span class="emoji" onclick="insertEmoji('🥳')">🥳</span>
+                            <span class="emoji" onclick="insertEmoji('🙌')">🙌</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷回复 -->
+                <div class="quick-replies" id="quickReplies">
+                    <button class="quick-reply" onclick="insertQuickReply('有人在出iPhone吗？')">
+                        📱 求购iPhone
+                    </button>
+                    <button class="quick-reply" onclick="insertQuickReply('这个价格可以优惠吗？')">
+                        💰 价格咨询
+                    </button>
+                    <button class="quick-reply" onclick="insertQuickReply('东西还在吗？')">
+                        ❓ 商品状态
+                    </button>
+                    <button class="quick-reply" onclick="insertQuickReply('可以面交吗？')">
+                        🤝 交易方式
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息通知 -->
+    <div id="notification" class="notification"></div>
+
+    <!-- 引入GitHub数据管理器 -->
+    <script src="js/github-data-manager-secure.js"></script>
+    <!-- 引入聊天室JS -->
+    <script src="js/chat.js"></script>  <!-- 确保是 js/chat.js -->
+</body>
+</html>
