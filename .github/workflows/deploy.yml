@@ -1,28 +1,77 @@
-name: Deploy Static Site
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # 🔥 改为 write，需要写入权限来生成文件
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Debug File Structure
+        run: |
+          echo "=== 调试信息 ==="
+          echo "当前目录:"
+          pwd
+          echo "文件列表:"
+          ls -la
+          echo "js文件夹内容:"
+          ls -la js/
+          echo "源文件内容前3行:"
+          head -3 js/github-data-manager-secure.js
+          
+      - name: Inject GitHub Token
+        run: |
+          echo "=== 开始Token替换 ==="
+          # 检查源文件是否存在
+          if [ ! -f "js/github-data-manager-secure.js" ]; then
+            echo "❌ 错误: js/github-data-manager-secure.js 不存在"
+            exit 1
+          fi
+          
+          # 执行Token替换
+          sed "s/GH_DATA_TOKEN_PLACEHOLDER/${{ secrets.GH_DATA_TOKEN }}/g" js/github-data-manager-secure.js > js/github-data-manager.js
+          
+          # 验证生成结果
+          echo "=== 验证生成结果 ==="
+          if [ -f "js/github-data-manager.js" ]; then
+            echo "✅ 文件生成成功"
+            echo "文件大小: $(wc -l < js/github-data-manager.js) 行"
+            echo "Token替换检查:"
+            grep "token" js/github-data-manager.js | head -1
+          else
+            echo "❌ 文件生成失败"
+            exit 1
+          fi
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3  
+        with:
+          path: .
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: '.'
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        id: deployment
+        uses: actions/deploy-pages@v3
