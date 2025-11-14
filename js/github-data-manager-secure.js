@@ -481,3 +481,4 @@ class GitHubDataManager {
 }
 
 // 创建全局实例
+const gitHubDataManager = new GitHubDataManager();
