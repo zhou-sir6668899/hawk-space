@@ -1,83 +1,83 @@
 // GitHub数据管理类 - 安全版本
-班级 GitHubDataManager{
-    构造器() {
+class GitHubDataManager {
+    constructor() {
         // Token通过GitHub Actions在构建时注入
-        这.数据报告 = 周-sir6668899/网-用户-数据';
-        这.代币 = ' GH_DATA_TOKEN_PLACEHOLDER '; // 会被GitHub Actions替换
-        这.baseURL = https://api.github.com/repos/';
-        这.头球 = {
-            '授权': `令牌${这.代币}`,
-            '接受': ' application/vnd.github.v3+json ',
-            '内容类型': '应用程序/json '
+        this.dataRepo = 'zhou-sir6668899/web-user-data';
+        this.token = 'GH_DATA_TOKEN_PLACEHOLDER'; // 会被GitHub Actions替换
+        this.baseURL = 'https://api.github.com/repos/';
+        this.headers = {
+            'Authorization': `token ${this.token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
         };
 
-        安慰.原木('🔒 安全版开源代码库数据管理器已加载');
+        console.log('🔒 安全版GitHub数据管理器已加载');
     }
 
     // 安全的Base64编码
-    safeBtoa(数据) {
-        尝试 {
-            常数 潜艇用热中子反应堆(潜艇热的reactor的缩写）) = 类型关于数据 === 字符串 ? 数据 : JSON.字符串化(数据);
-            返回 btoa(unescape(编码成分(潜艇用热中子反应堆（submarine   (潜艇热的 thermal))));
-        } 捕捉 (错误) {
-            安慰.错误(Base64编码失败:', 错误);
-            返回 btoa(JSON.字符串化(数据));
+    safeBtoa(data) {
+        try {
+            const str = typeof data === 'string' ? data : JSON.stringify(data);
+            return btoa(unescape(encodeURIComponent(str)));
+        } catch (error) {
+            console.error('Base64编码失败:', error);
+            return btoa(JSON.stringify(data));
         }
     }
 
     // 安全的Base64解码
-    safeAtob(编码) {
-        try{
-            return.JSON(decodeURIComponent组件(逃跑(atob(编码))));
+    safeAtob(encoded) {
+        try {
+            return JSON.parse(decodeURIComponent(escape(atob(encoded))));
         } catch (error) {
-            console.error('Base64解码失败:':', error);
-            return.JSON(atob(编码));
+            console.error('Base64解码失败:', error);
+            return JSON.parse(atob(encoded));
         }
     }
 
-    async(asynchronous) getFileContent(filePath) {
-        try{
+    async getFileContent(filePath) {
+        try {
             console.log(`📁 获取文件: ${filePath}`);
-            const = response取得(`${this.response}${this.fetchthis/this/${filePath}`, await
+            const response = await fetch(`${this.baseURL}${this.dataRepo}/contents/${filePath}`, {
                 method: 'GET',
-                头球: 这.头球
+                headers: this.headers
             });
 
-            如果 (反应.状态 === 404) {
-                安慰.原木(`文件不存在: ${filePath}`);
-                常数 emptyData = 这.getEmptyDataForFile(filePath);
-                返回 {
-                    内容: 这.safeBtoa(emptyData),
-                    恒星时角: 空
+            if (response.status === 404) {
+                console.log(`文件不存在: ${filePath}`);
+                const emptyData = this.getEmptyDataForFile(filePath);
+                return {
+                    content: this.safeBtoa(emptyData),
+                    sha: null
                 };
             }
 
-            如果 (!反应.好的) {
-                扔 新的 错误(` GitHub API错误：${response.status}`);
+            if (!response.ok) {
+                throw new Error(`GitHub API错误: ${response.status}`);
             }
 
-            常数 数据 = 等待 反应.json();
-            安慰.原木(`✅ 获取文件成功: ${filePath}`);
-            返回 数据;
-        } 捕捉 (错误) {
-            安慰.错误('❌ 获取文件失败:', error);
-            常数 emptyData = 这.getEmptyDataForFile(filePath);
-            返回 {
-                内容: 这.safeBtoa(emptyData),
-                恒星时角: 空
+            const data = await response.json();
+            console.log(`✅ 获取文件成功: ${filePath}`);
+            return data;
+        } catch (error) {
+            console.error('❌ 获取文件失败:', error);
+            const emptyData = this.getEmptyDataForFile(filePath);
+            return {
+                content: this.safeBtoa(emptyData),
+                sha: null
             };
         }
     }
 
-    getEmptyDataForFile(文件路径) {
-        常数 数据 = {
-            '用户/用户. json ': {
-                用户: []
+    getEmptyDataForFile(filePath) {
+        const data = {
+            'user/users.json': {
+                users: []
             },
-            sessions/active-sessions.json ': { sessions: [] },
-            '配置/repository.config.json ': {
-                仓库: { 名字: "网络用户数据", owner: "zhou-sir6668899", branch: "main" },
-                安全: { 管理电子邮件: ["hawk@qq.com"], maxLoginAttempts: 5 }
+            'sessions/active-sessions.json': { sessions: [] },
+            'config/repository.config.json': {
+                repository: { name: "web-user-data", owner: "zhou-sir6668899", branch: "main" },
+                security: { adminEmails: ["hawk@qq.com"], maxLoginAttempts: 5 }
             }
         };
         return data[filePath] || {};
@@ -91,7 +91,7 @@
                 headers: this.headers,
                 body: JSON.stringify({
                     message: `Update ${filePath} - ${new Date().toISOString()}`,
-                    content: this.safeBtoa(contenti),
+                    content: this.safeBtoa(content),
                     sha: sha
                 })
             });
@@ -279,6 +279,4 @@
 // 创建全局实例
 
 const gitHubDataManager = new GitHubDataManager();
-
-
 
