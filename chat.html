@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天室 - 鹰隼空间</title>
+    <link rel="stylesheet" href="css/chat.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 科幻网格背景 -->
+    <div class="cyber-grid"></div>
+
+    <!-- 简洁的顶部栏（只有返回按钮和标题） -->
+    <div class="chat-top-bar">
+        <button class="back-btn click-ripple" onclick="window.location.href='home.html'">
+            <i class="fas fa-arrow-left"></i>
+            <span>返回首页</span>
+        </button>
+        <div class="chat-title">
+            <i class="fas fa-comments"></i>
+            <span>鹰隼聊天室</span>
+        </div>
+        <div class="user-info">
+            <span id="chatUserName">用户</span>
+            <div class="user-avatar-small" id="chatUserAvatar">U</div>
+        </div>
+    </div>
+
+    <!-- 聊天室主容器 -->
+    <div class="chat-container">
+        <!-- 侧边栏 - 聊天室列表 -->
+        <aside class="chat-sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-comments"></i> 聊天室</h3>
+            </div>
+
+            <div class="rooms-list" id="roomsList">
+                <div class="room-item active" data-room="main">
+                    <div class="room-icon">💬</div>
+                    <div class="room-info">
+                        <div class="room-name">主聊天室</div>
+                        <div class="room-desc">欢迎来到主聊天室！</div>
+                    </div>
+                    <div class="room-stats">
+                        <span class="user-count" id="mainRoomCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 在线用户 -->
+            <div class="online-users-section">
+                <div class="section-header">
+                    <h4><i class="fas fa-users"></i> 在线用户</h4>
+                    <span class="online-count" id="onlineCount">0</span>
+                </div>
+                <div class="users-list" id="usersList">
+                    <div class="empty-users">
+                        <i class="fas fa-user-slash"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 聊天主区域 -->
+        <main class="chat-main">
+            <!-- 聊天头部 -->
+            <div class="chat-header">
+                <div class="room-info">
+                    <h2 id="currentRoomName">主聊天室</h2>
+                    <p id="currentRoomDesc">欢迎来到主聊天室！</p>
+                </div>
+                <div class="room-actions">
+                    <button class="action-btn click-ripple" id="roomInfoBtn" title="房间信息">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button class="action-btn click-ripple" id="settingsBtn" title="设置">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 消息区域 -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h3>欢迎来到鹰隼聊天室！</h3>
+                    <p>开始与大家交流吧</p>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-container">
+                <div class="input-actions">
+                    <button class="action-btn click-ripple" id="emojiBtn" title="表情">
+                        <i class="far fa-smile"></i>
+                    </button>
+                </div>
+                <div class="message-input-wrapper">
+                    <input type="text"
+                           id="messageInput"
+                           placeholder="输入消息..."
+                           maxlength="1000"
+                           autocomplete="off">
+                    <div class="input-hint" id="inputHint">按 Enter 发送</div>
+                </div>
+                <button class="send-btn click-ripple" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 表情选择器 -->
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-header">
+            <span>选择表情</span>
+            <button class="close-emoji click-ripple" id="closeEmojiBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="emoji-grid">
+            <span class="emoji">😀</span><span class="emoji">😃</span><span class="emoji">😄</span>
+            <span class="emoji">😁</span><span class="emoji">😆</span><span class="emoji">😅</span>
+            <span class="emoji">😂</span><span class="emoji">🤣</span><span class="emoji">😊</span>
+            <span class="emoji">😇</span><span class="emoji">🙂</span><span class="emoji">🙃</span>
+            <span class="emoji">😉</span><span class="emoji">😌</span><span class="emoji">😍</span>
+            <span class="emoji">🥰</span><span class="emoji">😘</span><span class="emoji">😗</span>
+            <span class="emoji">😙</span><span class="emoji">😚</span><span class="emoji">😋</span>
+            <span class="emoji">😛</span><span class="emoji">😝</span><span class="emoji">😜</span>
+            <span class="emoji">🤪</span><span class="emoji">🤨</span><span class="emoji">🧐</span>
+            <span class="emoji">🤓</span><span class="emoji">😎</span><span class="emoji">🤩</span>
+            <span class="emoji">🥳</span><span class="emoji">😏</span><span class="emoji">😒</span>
+            <span class="emoji">😞</span><span class="emoji">😔</span><span class="emoji">😟</span>
+            <span class="emoji">😕</span><span class="emoji">🙁</span><span class="emoji">☹️</span>
+            <span class="emoji">😣</span><span class="emoji">😖</span><span class="emoji">😫</span>
+            <span class="emoji">😩</span><span class="emoji">🥺</span><span class="emoji">😢</span>
+            <span class="emoji">😭</span><span class="emoji">😤</span><span class="emoji">😠</span>
+            <span class="emoji">😡</span><span class="emoji">🤬</span><span class="emoji">🤯</span>
+            <span class="emoji">😳</span><span class="emoji">🥵</span><span class="emoji">🥶</span>
+            <span class="emoji">😱</span><span class="emoji">😨</span><span class="emoji">😰</span>
+            <span class="emoji">😥</span><span class="emoji">😓</span><span class="emoji">🤗</span>
+            <span class="emoji">🤔</span><span class="emoji">🤭</span><span class="emoji">🤫</span>
+            <span class="emoji">🤥</span><span class="emoji">😶</span><span class="emoji">😐</span>
+            <span class="emoji">😑</span><span class="emoji">😬</span><span class="emoji">🙄</span>
+            <span class="emoji">😯</span><span class="emoji">😦</span><span class="emoji">😧</span>
+            <span class="emoji">😮</span><span class="emoji">😲</span><span class="emoji">🥱</span>
+            <span class="emoji">😴</span><span class="emoji">🤤</span><span class="emoji">😪</span>
+            <span class="emoji">😵</span><span class="emoji">🤐</span><span class="emoji">🥴</span>
+            <span class="emoji">🤢</span><span class="emoji">🤮</span><span class="emoji">🤧</span>
+            <span class="emoji">😷</span><span class="emoji">🤒</span><span class="emoji">🤕</span>
+            <span class="emoji">🤑</span><span class="emoji">🤠</span><span class="emoji">😈</span>
+        </div>
+    </div>
+
+    <!-- 设置菜单 -->
+    <div class="settings-menu" id="settingsMenu">
+        <div class="settings-header">
+            <span>设置</span>
+            <button class="close-settings click-ripple" id="closeSettingsBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label>消息提示音</label>
+                <label class="switch">
+                    <input type="checkbox" id="soundToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label>桌面通知</label>
+                <label class="switch">
+                    <input type="checkbox" id="notificationToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-divider"></div>
+            <button class="setting-btn click-ripple" onclick="chatManager.logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                退出登录
+            </button>
+        </div>
+    </div>
+
+    <!-- 引入数据管理器 -->
+    <script src="js/github-data-manager.js"></script>
+    <!-- 引入聊天室JS -->
+    <script src="js/chat.js"></script>
+</body>
+</html>
