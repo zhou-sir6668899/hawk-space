@@ -168,7 +168,7 @@ class GitHubDataManager {
 
             // 方法1: 使用 ip-api.com (免费，提供中文地区信息)
             try {
-                sconst response = await fetch(`https://ip-api.com/json/${ip}?lang=zh-CN`);
+                const response = await fetch(`https://ip-api.com/json/${ip}?lang=zh-CN`);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.status === 'success') {
@@ -785,4 +785,5 @@ class GitHubDataManager {
 // 创建全局实例
 
 const gitHubDataManager = new GitHubDataManager();
+
 
