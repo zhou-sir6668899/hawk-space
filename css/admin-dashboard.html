@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据监控中心 - 量子空间</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 科幻网格背景 -->
+    <div class="cyber-grid"></div>
+
+    <!-- 导航栏 -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>量子空间数据监控中心</span>
+            </div>
+            <div class="nav-actions">
+                <div class="admin-info">
+                    <i class="fas fa-user-cog"></i>
+                    <span id="currentAdmin">管理员</span>
+                </div>
+                <button class="nav-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>刷新数据</span>
+                </button>
+                <button class="nav-btn" onclick="exportData()">
+                    <i class="fas fa-download"></i>
+                    <span>导出数据</span>
+                </button>
+                <button class="nav-btn logout-btn" onclick="adminLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出系统</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="admin-container">
+        <!-- 统计卡片区域 -->
+        <div class="stats-grid">
+            <div class="stat-card users-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalUsers">0</h3>
+                    <p>注册用户</p>
+                </div>
+                <div class="stat-trend" id="usersTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0%</span>
+                </div>
+            </div>
+
+            <div class="stat-card active-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="activeUsers">0</h3>
+                    <p>活跃用户</p>
+                </div>
+                <div class="stat-trend" id="activeTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0%</span>
+                </div>
+            </div>
+
+            <div class="stat-card logins-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="todayLogins">0</h3>
+                    <p>今日登录</p>
+                </div>
+                <div class="stat-trend" id="loginsTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0%</span>
+                </div>
+            </div>
+
+            <div class="stat-card registrations-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="todayRegistrations">0</h3>
+                    <p>今日注册</p>
+                </div>
+                <div class="stat-trend" id="registrationsTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0%</span>
+                </div>
+            </div>
+
+            <div class="stat-card online-stat">
+                <div class="stat-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="onlineUsers">0</h3>
+                    <p>当前在线</p>
+                </div>
+                <div class="stat-trend" id="onlineTrend">
+                    <i class="fas fa-circle"></i>
+                    <span>实时</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格区域 -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2><i class="fas fa-database"></i> 用户数据详情</h2>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="filterActiveUsers()">
+                        <i class="fas fa-filter"></i>
+                        活跃用户
+                    </button>
+                    <button class="action-btn" onclick="filterNewUsers()">
+                        <i class="fas fa-star"></i>
+                        新用户
+                    </button>
+                    <button class="action-btn" onclick="showAllUsers()">
+                        <i class="fas fa-list"></i>
+                        全部用户
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('id')">ID <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('email')">邮箱 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('password')">密码 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('username')">用户名 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('registerDate')">注册时间 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('lastLogin')">最后登录 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('loginCount')">登录次数 <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('status')">状态 <i class="fas fa-sort"></i></th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- 用户数据将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 登录历史区域 -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> 登录历史记录</h2>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="filterTodayLogins()">
+                        <i class="fas fa-calendar-day"></i>
+                        今日登录
+                    </button>
+                    <button class="action-btn" onclick="filterFailedLogins()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        失败登录
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="loginHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>用户邮箱</th>
+                            <th>登录时间</th>
+                            <th>IP地址</th>
+                            <th>地理位置</th>
+                            <th>浏览器</th>
+                            <th>操作系统</th>
+                            <th>设备类型</th>
+                            <th>位置精度</th>
+                            <th>用户类型</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loginHistoryBody">
+                        <!-- 登录历史数据将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 注册历史区域 -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-plus"></i> 用户注册记录</h2>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新数据
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="registrationHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>用户邮箱</th>
+                            <th>注册时间</th>
+                            <th>IP地址</th>
+                            <th>地理位置</th>
+                            <th>浏览器</th>
+                            <th>操作系统</th>
+                            <th>设备类型</th>
+                            <th>坐标</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registrationHistoryBody">
+                        <!-- 注册历史数据将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 系统信息区域 -->
+        <div class="info-grid">
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> 系统信息</h3>
+                <div class="info-content">
+                    <div class="info-item">
+                        <span class="info-label">数据仓库:</span>
+                        <span class="info-value">web-user-data</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">最后同步:</span>
+                        <span class="info-value" id="lastSync">刚刚</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">GitHub状态:</span>
+                        <span class="info-value" id="githubStatus">检查中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-chart-line"></i> 实时监控</h3>
+                <div class="info-content">
+                    <div class="info-item">
+                        <span class="info-label">内存使用:</span>
+                        <span class="info-value" id="memoryUsage">0 MB</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">请求次数:</span>
+                        <span class="info-value" id="requestCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">运行时间:</span>
+                        <span class="info-value" id="uptime">0分钟</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>正在同步数据...</p>
+        </div>
+    </div>
+
+    <!-- 消息通知 -->
+    <div id="notification" class="notification"></div>
+
+    <!-- 引入JS -->
+    <script src="js/github-data-manager.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>
