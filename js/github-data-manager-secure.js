@@ -155,7 +155,7 @@ async getLocationInfo() {
 
         return {
             country: userLocation.country || '未知',
-            region: userRegion || '未知',
+            region: userLocation.region || '未知',
             city: userLocation.city || '未知',
             isp: '用户授权位置',
             fullLocation: userLocation.fullLocation,
@@ -726,4 +726,5 @@ async getLocationInfo() {
 }
 
 // 创建全局实例
+
 const gitHubDataManager = new GitHubDataManager();
