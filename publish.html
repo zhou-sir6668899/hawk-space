@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布商品 - 鹰隼空间</title>
+    <link rel="stylesheet" href="css/publish.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 科幻网格背景 -->
+    <div class="cyber-grid"></div>
+
+    <!-- 简洁顶部栏 -->
+    <div class="publish-top-bar">
+        <button class="back-btn click-ripple" onclick="window.location.href='home.html'">
+            <i class="fas fa-arrow-left"></i>
+            <span>返回首页</span>
+        </button>
+        <div class="publish-title">
+            <i class="fas fa-plus-circle"></i>
+            <span>发布闲置商品</span>
+        </div>
+        <div class="user-info">
+            <span id="publishUserName">用户</span>
+        </div>
+    </div>
+
+    <!-- 发布商品主容器 -->
+    <div class="publish-container">
+        <div class="publish-form-container">
+            <form class="publish-form" id="publishForm">
+                <!-- 商品基本信息 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-info-circle"></i> 商品信息</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="productTitle">商品标题 *</label>
+                            <input type="text" id="productTitle" required maxlength="50"
+                                   placeholder="例如：iPhone 13 Pro 256GB">
+                            <div class="char-count"><span id="titleCount">0</span>/50</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productPrice">价格 *</label>
+                            <div class="price-input">
+                                <span class="currency">¥</span>
+                                <input type="number" id="productPrice" required min="1" max="999999"
+                                       placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">分类 *</label>
+                            <select id="productCategory" required>
+                                <option value="">选择分类</option>
+                                <option value="electronics">电子产品</option>
+                                <option value="clothing">服装鞋帽</option>
+                                <option value="home">家居日用</option>
+                                <option value="books">图书文具</option>
+                                <option value="sports">运动户外</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品描述 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-file-alt"></i> 商品描述</h3>
+                    <div class="form-group">
+                        <label for="productDescription">详细描述 *</label>
+                        <textarea id="productDescription" required maxlength="500"
+                                  placeholder="请详细描述商品的状况、使用情况、包含的配件等信息..."></textarea>
+                        <div class="char-count"><span id="descCount">0</span>/500</div>
+                    </div>
+                </div>
+
+                <!-- 联系信息 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> 位置信息</h3>
+                    <div class="form-group">
+                        <label for="productLocation">所在位置</label>
+                        <input type="text" id="productLocation"
+                               placeholder="例如：北京市海淀区">
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary click-ripple" onclick="window.location.href='home.html'">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                    <button type="submit" class="btn-primary click-ripple" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> 立即发布
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 引入数据管理器 -->
+    <script src="js/github-data-manager.js"></script>
+    <!-- 引入发布商品JS -->
+    <script src="js/publish.js"></script>
+</body>
+</html>
