@@ -219,7 +219,7 @@ class SecondHandPlatform {
 
         card.innerHTML = `
             <div class="product-image">
-                ${this.getProductIcon(product.category)}
+                ${product.images && product.images.length ? `<img src="${product.images[0]}" alt="商品图片">` : this.getProductIcon(product.category)}
             </div>
             <div class="product-info">
                 <h3 class="product-title">${this.escapeHtml(product.title)}</h3>
