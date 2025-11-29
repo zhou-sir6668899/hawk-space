@@ -124,7 +124,7 @@ class PublishManager {
     }
 
     // 处理图片选择
-    handleImageSelect(files) {
+    async handleImageSelect(files) {
         if (!files || files.length === 0) {
             this.showNotification('未选择图片', 'info');
             return;
@@ -135,7 +135,7 @@ class PublishManager {
             return;
         }
 
-        Array.from(files).forEach(file => {
+        const tasks = Array.from(files).map(async (file) => {
             if (file.type && !file.type.startsWith('image/')) {
                 this.showNotification('请选择图片文件', 'error');
                 return;
@@ -143,8 +143,14 @@ class PublishManager {
 
             const lowerType = (file.type || '').toLowerCase();
             if (lowerType.includes('heic') || lowerType.includes('heif')) {
-                this.showNotification('当前不支持HEIC/HEIF，请选择 JPG 或 PNG', 'error');
-                return;
+                const converted = await this.convertBlobToJpegDataUrl(file);
+                if (converted) {
+                    this.selectedImages.push({ file, dataUrl: converted });
+                    return;
+                } else {
+                    this.showNotification('HEIC图片无法读取，请选择 JPG/PNG', 'error');
+                    return;
+                }
             }
 
             if (file.size > 5 * 1024 * 1024) { // 5MB
@@ -153,33 +159,86 @@ class PublishManager {
             }
 
             const reader = new FileReader();
-            reader.onload = (e) => {
-                this.selectedImages.push({
-                    file: file,
-                    dataUrl: e.target.result
-                });
-                this.updateImagePreview();
-            };
-            reader.onerror = () => {
-                try {
-                    const objectUrl = URL.createObjectURL(file);
-                    this.selectedImages.push({ file: file, displayUrl: objectUrl });
-                    this.updateImagePreview();
-                } catch {}
-            };
-            reader.onabort = () => {
-                try {
-                    const objectUrl = URL.createObjectURL(file);
-                    this.selectedImages.push({ file: file, displayUrl: objectUrl });
-                    this.updateImagePreview();
-                } catch {}
-            };
-            reader.readAsDataURL(file);
+            const readPromise = new Promise((resolve) => {
+                reader.onload = (e) => {
+                    this.selectedImages.push({ file, dataUrl: e.target.result });
+                    resolve();
+                };
+                reader.onerror = async () => {
+                    const converted = await this.convertBlobToJpegDataUrl(file);
+                    if (converted) {
+                        this.selectedImages.push({ file, dataUrl: converted });
+                    } else {
+                        try {
+                            const objectUrl = URL.createObjectURL(file);
+                            const dataUrl = await this.objectUrlToDataUrl(objectUrl);
+                            this.selectedImages.push({ file, dataUrl, displayUrl: objectUrl });
+                        } catch {}
+                    }
+                    resolve();
+                };
+                reader.onabort = async () => {
+                    const converted = await this.convertBlobToJpegDataUrl(file);
+                    if (converted) {
+                        this.selectedImages.push({ file, dataUrl: converted });
+                    } else {
+                        try {
+                            const objectUrl = URL.createObjectURL(file);
+                            const dataUrl = await this.objectUrlToDataUrl(objectUrl);
+                            this.selectedImages.push({ file, dataUrl, displayUrl: objectUrl });
+                        } catch {}
+                    }
+                    resolve();
+                };
+            });
+            try { reader.readAsDataURL(file); } catch { reader.onerror(); }
+            await readPromise;
         });
+        for (const t of tasks) { await t; }
+        this.updateImagePreview();
 
         // 重置输入值，以便重复选择同一文件也能触发变更事件
         const imageInputEl = document.getElementById('imageInput');
         if (imageInputEl) imageInputEl.value = '';
+    }
+
+    async convertBlobToJpegDataUrl(file) {
+        try {
+            const bitmap = await createImageBitmap(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.92);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async objectUrlToDataUrl(objectUrl) {
+        return new Promise((resolve, reject) => {
+            try {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(dataUrl);
+                };
+                img.onerror = () => {
+                    try { URL.revokeObjectURL(objectUrl); } catch {}
+                    reject(new Error('image load error'));
+                };
+                img.src = objectUrl;
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 
     // 处理图片拖拽
