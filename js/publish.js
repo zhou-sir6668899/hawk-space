@@ -136,12 +136,12 @@ class PublishManager {
         }
 
         Array.from(files).forEach(file => {
-            if (!file.type || !file.type.startsWith('image/')) {
+            if (file.type && !file.type.startsWith('image/')) {
                 this.showNotification('请选择图片文件', 'error');
                 return;
             }
 
-            const lowerType = file.type.toLowerCase();
+            const lowerType = (file.type || '').toLowerCase();
             if (lowerType.includes('heic') || lowerType.includes('heif')) {
                 this.showNotification('当前不支持HEIC/HEIF，请选择 JPG 或 PNG', 'error');
                 return;
@@ -161,6 +161,13 @@ class PublishManager {
                 this.updateImagePreview();
             };
             reader.onerror = () => {
+                try {
+                    const objectUrl = URL.createObjectURL(file);
+                    this.selectedImages.push({ file: file, displayUrl: objectUrl });
+                    this.updateImagePreview();
+                } catch {}
+            };
+            reader.onabort = () => {
                 try {
                     const objectUrl = URL.createObjectURL(file);
                     this.selectedImages.push({ file: file, displayUrl: objectUrl });
