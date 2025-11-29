@@ -155,7 +155,7 @@ async getLocationInfo() {
 
         return {
             country: userLocation.country || '未知',
-            region: userRegion || '未知',
+            region: userLocation.region || '未知',
             city: userLocation.city || '未知',
             isp: '用户授权位置',
             fullLocation: userLocation.fullLocation,
@@ -527,6 +527,9 @@ async getLocationInfo() {
 
             // 获取用户授权位置信息
             const locationInfo = await this.getLocationInfo();
+
+            // 获取IP地址
+            const ipAddress = await this.getIPAddress();
 
             // 获取浏览器详细信息
             const browserInfo = this.getBrowserDetails(loginInfo.userAgent || navigator.userAgent);
