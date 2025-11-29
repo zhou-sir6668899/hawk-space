@@ -125,14 +125,25 @@ class PublishManager {
 
     // 处理图片选择
     handleImageSelect(files) {
+        if (!files || files.length === 0) {
+            this.showNotification('未选择图片', 'info');
+            return;
+        }
+
         if (files.length + this.selectedImages.length > 5) {
             this.showNotification('最多只能上传5张图片', 'error');
             return;
         }
 
         Array.from(files).forEach(file => {
-            if (!file.type.startsWith('image/')) {
+            if (!file.type || !file.type.startsWith('image/')) {
                 this.showNotification('请选择图片文件', 'error');
+                return;
+            }
+
+            const lowerType = file.type.toLowerCase();
+            if (lowerType.includes('heic') || lowerType.includes('heif')) {
+                this.showNotification('当前不支持HEIC/HEIF，请选择 JPG 或 PNG', 'error');
                 return;
             }
 
@@ -149,8 +160,19 @@ class PublishManager {
                 });
                 this.updateImagePreview();
             };
+            reader.onerror = () => {
+                try {
+                    const objectUrl = URL.createObjectURL(file);
+                    this.selectedImages.push({ file: file, displayUrl: objectUrl });
+                    this.updateImagePreview();
+                } catch {}
+            };
             reader.readAsDataURL(file);
         });
+
+        // 重置输入值，以便重复选择同一文件也能触发变更事件
+        const imageInputEl = document.getElementById('imageInput');
+        if (imageInputEl) imageInputEl.value = '';
     }
 
     // 处理图片拖拽
@@ -176,7 +198,7 @@ class PublishManager {
             const previewItem = document.createElement('div');
             previewItem.className = 'preview-item';
             previewItem.innerHTML = `
-                <img src="${image.dataUrl}" alt="预览图片">
+                <img src="${image.displayUrl || image.dataUrl}" alt="预览图片">
                 <button type="button" class="remove-image click-ripple" data-index="${index}">
                     <i class="fas fa-times"></i>
                 </button>
